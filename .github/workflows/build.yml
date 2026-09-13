@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,23 +22,13 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Grant execute permission for gradlew
+      - name: Download Gradle
         run: |
-          # Create a minimal gradlew if missing
-          if [ ! -f gradlew ]; then
-            echo "Creating basic gradlew..."
-            cat > gradlew << 'GRADLEW'
-#!/bin/sh
-GRADLEW
-            chmod +x gradlew
-          fi
-          chmod +x gradlew || true
+          curl -sL https://services.gradle.org/distributions/gradle-8.7-bin.zip -o gradle.zip
+          unzip -q gradle.zip
 
       - name: Build Debug APK
         run: |
-          # Use Gradle directly since wrapper jar may be missing
-          curl -sL https://services.gradle.org/distributions/gradle-8.7-bin.zip -o gradle.zip
-          unzip -q gradle.zip
           ./gradle-8.7/bin/gradle assembleDebug --no-daemon
 
       - name: Upload APK
