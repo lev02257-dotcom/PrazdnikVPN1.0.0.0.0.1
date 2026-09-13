@@ -21,9 +21,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Unzip project
-        run: |
-          unzip -q PrazdnikVPN.zip
-          ls -la PrazdnikVPN/
+        run: unzip -q PrazdnikVPN.zip
 
       - name: Create gradle.properties
         run: |
@@ -33,6 +31,12 @@ jobs:
           org.gradle.jvmargs=-Xmx2048m
           kotlin.code.style=official
           EOF
+
+      - name: Fix AndroidManifest (remove missing icon)
+        run: |
+          sed -i 's/android:icon="@mipmap\/ic_launcher"//' PrazdnikVPN/app/src/main/AndroidManifest.xml
+          sed -i 's/android:roundIcon="@mipmap\/ic_launcher"//' PrazdnikVPN/app/src/main/AndroidManifest.xml || true
+          cat PrazdnikVPN/app/src/main/AndroidManifest.xml
 
       - name: Download Gradle
         run: |
