@@ -28,7 +28,6 @@ jobs:
             echo "Creating basic gradlew..."
             cat > gradlew << 'GRADLEW'
 #!/bin/sh
-exec java -jar gradle/wrapper/gradle-wrapper.jar "$@"
 GRADLEW
             chmod +x gradlew
           fi
