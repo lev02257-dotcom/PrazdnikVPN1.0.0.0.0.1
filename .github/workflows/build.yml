@@ -22,17 +22,32 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Find project directory
+        id: find
+        run: |
+          if [ -f "settings.gradle.kts" ]; then
+            echo "dir=." >> $GITHUB_OUTPUT
+          elif [ -f "PrazdnikVPN/settings.gradle.kts" ]; then
+            echo "dir=PrazdnikVPN" >> $GITHUB_OUTPUT
+          else
+            echo "Looking for settings.gradle.kts..."
+            find . -name "settings.gradle.kts" | head -5
+            exit 1
+          fi
+
       - name: Download Gradle
         run: |
           curl -sL https://services.gradle.org/distributions/gradle-8.7-bin.zip -o gradle.zip
           unzip -q gradle.zip
 
       - name: Build Debug APK
+        working-directory: ${{ steps.find.outputs.dir }}
         run: |
-          ./gradle-8.7/bin/gradle assembleDebug --no-daemon
+          ../gradle-8.7/bin/gradle assembleDebug --no-daemon || ../../gradle-8.7/bin/gradle assembleDebug --no-daemon || ./../gradle-8.7/bin/gradle assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: PrazdnikVPN-debug
-          path: app/build/outputs/apk/debug/*.apk
+          path: |
+            **/app/build/outputs/apk/debug/*.apk
