@@ -20,23 +20,48 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Show what is in the repo
+        run: |
+          echo "=== Root ==="
+          ls -la
+          echo ""
+          echo "=== Looking for ZIP files ==="
+          find . -name "*.zip" -type f
+
       - name: Unzip project
-        run: unzip -q PrazdnikVPN-configs.zip
+        run: |
+          if [ -f "PrazdnikVPN.zip" ]; then
+            unzip -q PrazdnikVPN.zip
+            echo "Unzipped PrazdnikVPN.zip"
+          elif [ -f "PrazdnikVPN-configs.zip" ]; then
+            echo "ERROR: В репозитории лежит ZIP с конфигами, а не с проектом приложения!"
+            echo "Нужен файл PrazdnikVPN.zip (исходники приложения)"
+            exit 1
+          else
+            echo "ZIP not found, trying to find project..."
+            find . -name "settings.gradle.kts" || true
+            exit 1
+          fi
+          ls -la
+          ls -la PrazdnikVPN/ || true
 
       - name: Create gradle.properties
         run: |
+          mkdir -p PrazdnikVPN
           cat > PrazdnikVPN/gradle.properties << 'EOF'
           android.useAndroidX=true
           android.enableJetifier=true
           org.gradle.jvmargs=-Xmx2048m
           kotlin.code.style=official
           EOF
+          cat PrazdnikVPN/gradle.properties
 
       - name: Fix AndroidManifest (remove missing icon)
         run: |
-          sed -i 's/android:icon="@mipmap\/ic_launcher"//' PrazdnikVPN/app/src/main/AndroidManifest.xml
-          sed -i 's/android:roundIcon="@mipmap\/ic_launcher"//' PrazdnikVPN/app/src/main/AndroidManifest.xml || true
-          cat PrazdnikVPN/app/src/main/AndroidManifest.xml
+          if [ -f "PrazdnikVPN/app/src/main/AndroidManifest.xml" ]; then
+            sed -i 's/android:icon="@mipmap\/ic_launcher"//' PrazdnikVPN/app/src/main/AndroidManifest.xml
+            sed -i 's/android:roundIcon="@mipmap\/ic_launcher"//' PrazdnikVPN/app/src/main/AndroidManifest.xml || true
+          fi
 
       - name: Download Gradle
         run: |
