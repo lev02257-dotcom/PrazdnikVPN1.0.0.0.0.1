@@ -21,7 +21,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Unzip project
-        run: unzip -q PrazdnikVPN.zip
+        run: unzip -q PrazdnikVPN-configs.zip
 
       - name: Create gradle.properties
         run: |
